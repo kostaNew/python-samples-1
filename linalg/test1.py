@@ -5,15 +5,20 @@
 
 import numpy as np
 from scipy.linalg import *
+from numpy.linalg import matrix_rank
 
-A = np.array([[0, 2, 3], [4, 5, 6], [7, 8, 9]])
+A = np.matrix([[0, 2, 3], [4, 5, 6], [7, 8, 9]])
 print A
 
 det_ = det(A)
+rank_ = matrix_rank(A)
+inv_ = inv(A)
 print "Determinant: {0}".format(det_)
-print ""
+print "Rank: {0}".format(rank_)
+print "Inverse matrix:\n{0}".format(inv_)
+print "---------------------------------------------------"
 
-B = np.array([[1, -1, 0], [-1, 0, 1], [0, 1, 1]])
+B = np.matrix([[1, -1, 0], [-1, 0, 1], [0, 1, 1]])
 print B
 
 eig_ = eig(B)
@@ -23,3 +28,5 @@ print "Eighenvectors:\n{0}".format(eig_[1])
 
 for vec in eig_[1]:
     print norm(vec)
+
+
