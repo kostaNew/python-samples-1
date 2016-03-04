@@ -77,9 +77,38 @@ def euler_method_better(grid, fun, init):
 
     return x_series, y_series
 
+def euler_method_better2(grid, fun, init):
+
+    # Что бы не умирать при сетке на 2х точках
+    if len(grid)<2:
+        return grid, grid
+
+    x_series = np.zeros(len(grid))
+    y_series = np.zeros(len(grid))
+    x_series[0] = init[0]
+    y_series[0] = init[1]
+
+    x_, y_ = fun((x_series[0], y_series[0]), grid[0])
+
+    x_series[1] = x_series[0] + (grid[1] - grid[0])*x_
+    y_series[1] = y_series[0] + (grid[1] - grid[0])*y_
+
+
+    # Основной цикл
+    for i in xrange(1, len(grid)-1):
+        h = grid[i+1] - grid[i]
+
+        # Решаем нелинейное уравнение, сведя его к задаче минимизации
+        x_, y_ = fun((x_series[i], y_series[i]), grid[i])
+
+        x_series[i+1] = 2*h*x_ + x_series[i-1]
+        y_series[i+1] = 2*h*y_ + y_series[i-1]
+
+    return x_series, y_series
+
 
 # Тут рисуется картинка
-def vizualize(t, psoln, euler_t, euler_x, euler_y, euler_better_t, euler_better_x, euler_better_y):
+def vizualize(t, psoln, euler_t, euler_x, euler_y, euler_better_t, euler_better_x, euler_better_y, euler_better2_t, euler_better2_x, euler_better2_y):
     fig = plt.figure(1, figsize=(8, 8))
 
     # График "быстрого" тока. Переменная u
@@ -87,6 +116,7 @@ def vizualize(t, psoln, euler_t, euler_x, euler_y, euler_better_t, euler_better_
     ax1.plot(t, psoln[:, 0], color='black')
     ax1.plot(euler_t, euler_x, color='red')
     ax1.plot(euler_better_t, euler_better_x, color='green')
+    # ax1.plot(euler_better2_t, euler_better2_x, color='magenta')
     ax1.set_xlabel('time')
     ax1.set_ylabel('u')
 
@@ -95,6 +125,7 @@ def vizualize(t, psoln, euler_t, euler_x, euler_y, euler_better_t, euler_better_
     ax2.plot(t, psoln[:, 1], color='black')
     ax2.plot(euler_t, euler_y, color='red')
     ax2.plot(euler_better_t, euler_better_y, color='green')
+    # ax2.plot(euler_better2_t, euler_better2_y, color='magenta')
     ax2.set_xlabel('time')
     ax2.set_ylabel('v')
 
@@ -103,6 +134,7 @@ def vizualize(t, psoln, euler_t, euler_x, euler_y, euler_better_t, euler_better_
     ax3.plot(psoln[:, 0], psoln[:, 1], color='black')
     ax3.plot(euler_x, euler_y, color='red')
     ax3.plot(euler_better_x, euler_better_y, color='green')
+    # ax3.plot(euler_better2_x, euler_better2_y, color='magenta')
     ax3.set_xlabel('u')
     ax3.set_ylabel('v')
 
@@ -112,13 +144,18 @@ def vizualize(t, psoln, euler_t, euler_x, euler_y, euler_better_t, euler_better_
 
     E_euler = u_to_E(euler_x)
     t_euler = t_to_t(euler_t)
+
     E_euler_ = u_to_E(euler_better_x)
     t_euler_ = t_to_t(euler_better_t)
+
+    E_euler2_ = u_to_E(euler_better2_x)
+    t_euler2_ = t_to_t(euler_better2_t)
 
     ax4 = fig.add_subplot(224)
     ax4.plot(t_, E, color='black')
     ax4.plot(t_euler, E_euler, color='red')
     ax4.plot(t_euler_, E_euler_, color='green')
+    #ax4.plot(t_euler2_, E_euler2_, color='magenta')
     ax4.set_xlabel('time[ms]')
     ax4.set_ylabel('E[mV]')
 
@@ -147,8 +184,9 @@ def main():
     grid = np.linspace(left_bound, right_bound, discretization2)
     x_series, y_series = euler_method(grid, fun, y0)
     x_series_, y_series_ = euler_method_better(grid, fun, y0)
+    x_series2_, y_series2_ = euler_method_better2(grid, fun, y0)
 
-    vizualize(t, psoln, grid, x_series, y_series, grid, x_series_, y_series_)
+    vizualize(t, psoln, grid, x_series, y_series, grid, x_series_, y_series_, grid, x_series2_, y_series2_)
 
 
 if __name__ == "__main__":
