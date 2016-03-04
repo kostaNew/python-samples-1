@@ -62,6 +62,25 @@ def euler_method_explicit(grid, fun, init_x):
 
     return x_series
 
+def euler_method_better2(grid, fun, init_x):
+
+
+    if len(grid)<2:
+        return grid
+
+    x_series = np.zeros(len(grid))
+    x_series[0] = init_x
+    x_series[1] = x_series[0] + (grid[1] - grid[0])*fun(grid[0], x_series[0])
+
+
+    # Основной цикл
+    for i in xrange(1, len(grid)-1):
+        h = grid[i+1] - grid[i]
+
+        # Решаем нелинейное уравнение, сведя его к задаче минимизации
+        x_series[i+1] = 2*h*fun(grid[i],x_series[i]) + x_series[i-1]
+
+    return x_series
 
 def function_sample(t, y):
         return -50*(y-np.cos(t))
@@ -106,6 +125,19 @@ def data_t_x_3(N):
 
     return grid, x_series
 
+def data_t_x_4(N):
+
+    # Сетка. Равномерная.
+    grid = np.linspace(0, 5, N)
+
+    # Начальные условия
+    init_x = 1
+
+    # Расчет методом Эйлера, неявным
+    x_series = euler_method_better2(grid, function_sample, init_x)
+
+    return grid, x_series
+
 # Тут вызывается солвер
 def main():
 
@@ -118,6 +150,7 @@ def main():
     t_series, x_series = data_t_x(N)
     t_series_2, x_series_2 = data_t_x_2(N)
     t_series_3, x_series_3 = data_t_x_3(N)
+    t_series_4, x_series_4 = data_t_x_4(N)
 
     # Окно с ползунками
     fig, ax = plt.subplots()
@@ -130,6 +163,7 @@ def main():
     forward_euler, = plt.plot(t_series, x_series, lw=1, color='red')
     forward_euler2, = plt.plot(t_series_2, x_series_2, lw=1, color='green')
     backward_euler, = plt.plot(t_series_3, x_series_3, lw=1, color='blue')
+    #better_euler, = plt.plot(t_series_4, x_series_4, lw=1, color='magenta')
 
     plt.axis([0, right_bound, -5, 5])
 
@@ -143,9 +177,12 @@ def main():
         t_series, x_series = data_t_x(N)
         t_series_2, x_series_2 = data_t_x_2(N)
         t_series_3, x_series_3 = data_t_x_3(N)
+        #t_series_4, x_series_4 = data_t_x_4(N)
+
         forward_euler.set_data(t_series, x_series)
         forward_euler2.set_data(t_series_2, x_series_2)
         backward_euler.set_data(t_series_3, x_series_3)
+        #better_euler.set_data(t_series_4, x_series_4)
 
     slider_r.on_changed(update)
 

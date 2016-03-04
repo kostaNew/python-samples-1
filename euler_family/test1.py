@@ -63,6 +63,28 @@ def euler_method_explicit(grid, fun, init_x):
 
     return x_series
 
+#
+def euler_method_better2(grid, fun, init_x):
+
+
+    if len(grid)<2:
+        return grid
+
+    x_series = np.zeros(len(grid))
+    x_series[0] = init_x
+    x_series[1] = x_series[0] + (grid[1] - grid[0])*fun(grid[0], x_series[0])
+
+
+    # Основной цикл
+    for i in xrange(1, len(grid)-1):
+        h = grid[i+1] - grid[i]
+
+        # Решаем нелинейное уравнение, сведя его к задаче минимизации
+        x_series[i+1] = 2*h*fun(grid[i],x_series[i]) + x_series[i-1]
+
+    return x_series
+
+
 # Тут вызывается солвер
 def main():
 
@@ -78,6 +100,8 @@ def main():
     x_series = euler_method(grid, sample, init_x)
     x_series_2 = euler_method_better(grid, sample, init_x)
     x_series_3 = euler_method_explicit(grid, sample, init_x)
+    x_series_4 = euler_method_better2(grid, sample, init_x)
+
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -89,6 +113,7 @@ def main():
     ax.plot(grid, x_series, linewidth=1, color='green')
     ax.plot(grid, x_series_2, linewidth=1, color='red')
     ax.plot(grid, x_series_3, linewidth=1, color='blue')
+    ax.plot(grid, x_series_4, linewidth=1, color='magenta')
     plt.show()
 
 
